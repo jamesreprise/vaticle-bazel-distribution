@@ -62,10 +62,15 @@ def _transitive_collect_maven_coordinate_impl(_target, ctx):
 
 
 def _collect_maven_coordinate_impl(_target, ctx):
-    for file in _target.files.to_list():
-        if file.extension == 'jar':
-            jar_file = file.path
+    jar_files = [file.path for file in _target.files.to_list() if file.extension == 'jar']
 
+    if len(jar_files) == 0:
+        return [JarToMavenCoordinatesMapping(
+            filename = "INVALID",
+            maven_coordinates = "INVALID"
+        )]
+
+    jar_file = jar_files[-1]
     tags = getattr(ctx.rule.attr, "tags", [])
     jar_coordinates = ""
 
